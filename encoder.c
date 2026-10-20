@@ -36,45 +36,9 @@ size_t count_of_possible_input_values(size_t count_of_output_alphabet, size_t co
     return (size_t)((count_of_output_alphabet - count_of_reserved_prefixes) + count_of_reserved_prefixes * pow((double)count_of_output_alphabet, (double)count_of_payload_symbols));
 }
 
-int main(int argc, char const *argv[])
+void print_mapping(size_t output_alphabet_start, size_t count_of_output_alphabet, size_t count_of_reserved_prefixes, size_t count_of_payload_symbols)
 {
-    size_t n = 242;
-    size_t base = 12;
-
-    /* Enough space even for base 2. Assumes base >= 2. */
-    size_t digits[sizeof(size_t) * CHAR_BIT];
-    size_t count = 0;
-    do {
-        digits[count++] = n % base;
-        n /= base;
-    } while (n != 0);
-    printf("Most to least significant: ");
-    while (count > 0) {
-        printf("%zu ", digits[--count]);
-    }
-    printf("\n");
-    return 0;
-
-    return 0;
-
-    size_t output_alphabet_start = 33;
-    size_t output_alphabet_end = 126;
-    size_t count_of_output_alphabet  = output_alphabet_end - output_alphabet_start + 1;
-    size_t count_of_payload_symbols  = 1;
-    size_t count_of_reserve_prefixes = count_of_prefixes_needed(count_of_output_alphabet, count_of_payload_symbols);
-
-    if (count_of_reserve_prefixes > count_of_output_alphabet) {
-        printf("Not enough symbols to encode a byte stream. Increase payload length.\n");
-        return -1;
-    }
-
-    size_t count_of_input_values = count_of_possible_input_values(count_of_output_alphabet, count_of_reserve_prefixes, count_of_payload_symbols);
-
-    printf("Needs %zu prefixes and can represent %zu values.\n", count_of_reserve_prefixes, count_of_input_values);
-    
-
-
-    const size_t direct_count = count_of_output_alphabet - count_of_reserve_prefixes;
+    const size_t direct_count = count_of_output_alphabet - count_of_reserved_prefixes;
     const size_t first_prefix = output_alphabet_start + direct_count;
 
     /*
@@ -104,7 +68,7 @@ int main(int argc, char const *argv[])
 
     size_t range_start = direct_count;
 
-    for (size_t i = 0; i < count_of_reserve_prefixes && range_start < COUNT_CHARS_IN_BYTE; ++i) {
+    for (size_t i = 0; i < count_of_reserved_prefixes && range_start < COUNT_CHARS_IN_BYTE; ++i) {
         const size_t prefix = first_prefix + i;
         const size_t remaining = COUNT_CHARS_IN_BYTE - range_start;
         const size_t range_size = values_per_prefix < remaining ? values_per_prefix : remaining;
@@ -116,6 +80,44 @@ int main(int argc, char const *argv[])
     }
 
     printf("Payload digits are most-significant first, padded with zero " "digits to exactly %zu symbols before adding %zu.\n", count_of_payload_symbols, output_alphabet_start);
+}
+
+int main(int argc, char const *argv[])
+{
+    // size_t n = 242;
+    // size_t base = 12;
+
+    // /* Enough space even for base 2. Assumes base >= 2. */
+    // size_t digits[sizeof(size_t) * CHAR_BIT];
+    // size_t count = 0;
+    // do {
+    //     digits[count++] = n % base;
+    //     n /= base;
+    // } while (n != 0);
+    // printf("Most to least significant: ");
+    // while (count > 0) {
+    //     printf("%zu ", digits[--count]);
+    // }
+    // printf("\n");
+    // return 0;
+
+    size_t output_alphabet_start = 33;
+    size_t output_alphabet_end = 126;
+    size_t count_of_output_alphabet  = output_alphabet_end - output_alphabet_start + 1;
+    size_t count_of_payload_symbols  = 1;
+    size_t count_of_reserved_prefixes = count_of_prefixes_needed(count_of_output_alphabet, count_of_payload_symbols);
+
+    if (count_of_reserved_prefixes > count_of_output_alphabet) {
+        printf("Not enough symbols to encode a byte stream. Increase payload length.\n");
+        return -1;
+    }
+
+    size_t count_of_input_values = count_of_possible_input_values(count_of_output_alphabet, count_of_reserved_prefixes, count_of_payload_symbols);
+
+    printf("Needs %zu prefixes and can represent %zu values.\n", count_of_reserved_prefixes, count_of_input_values);
+    
+    print_mapping(output_alphabet_start, count_of_output_alphabet, count_of_reserved_prefixes, count_of_payload_symbols);
+
 
     return 0;
 }
